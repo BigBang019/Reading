@@ -1,0 +1,7 @@
+*.pdf
+*.json
+*.html
+*.txt
+
+*.log
+.DS_Store
