@@ -61,10 +61,6 @@ QA:
 
 ![](pasteImage/2023-03-17-17-26-26.png)
 
-#### ViVo: Visibility-Aware Mobile Volumetric Video Streaming
-- 贡献visual prediction，和optimization（比如远处的pc分辨率调低）。压缩算法用的PtCl
-- Mobile
-
 #### Groot: A real-time streaming system of high-fidelity volumetric videos
 - 类似vivo（用户自适应优化）
 - 贡献PD-tree（解决octree的并行解码问题）
@@ -73,6 +69,17 @@ QA:
 
 QA:
 1. PtCl compression schemes: Dacro, PCL, LEPCC (from Esri)
+
+#### ViVo: Visibility-Aware Mobile Volumetric Video Streaming
+- 贡献visual prediction，和optimization（比如远处的pc分辨率调低）。压缩算法用的PtCl
+- Mobile
+
+#### YuZu: Neural-Enhanced Volumetric Video Streaming
+[$\star$3]
+- 第一个网络里应用Super-resolution（SR）的文章
+- 依赖PU-GAN进行super resolution
+- 主要贡献是（1）优化PU-GAN（2）intra-frame SR （3）inter-frame SR（4）外层算法根据
+- 因为是第一篇SR的网络会议，他提出了自己设计的metrics：QoE。Baseline experiment相当于ablation study
 
 #### Evaluating the Impact of Tiled User-Adaptive Real-Time Point Cloud Streaming on VR Remote Communication
 - 贡献一个算法外层的优化：因为VR中有用户和pc之间角度和距离的信息，根据这个信息可以选择性调节一些pc的分辨率
@@ -130,4 +137,3 @@ QA:
 
 #### INENet: Inliers Estimation Network With Similarity Learning for Partial Overlapping Registration
 - 处理的问题是多sensor扫描的point cloud是不全的、多角度的，如何从多份replica中重建一个完整的出来
-- 
