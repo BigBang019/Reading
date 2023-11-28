@@ -29,6 +29,7 @@ $$
 $$
 上式的新问题是
 > Directly computing this $\nabla_x\log{p(x)}$ is infeasible.
+>
 > 但是有解决方案：score-matching
 
 

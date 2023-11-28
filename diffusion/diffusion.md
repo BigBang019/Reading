@@ -1,4 +1,5 @@
 # Diffusion
+*本文采用machine leanring notation*
 
 ### 问题和思路
 
@@ -16,7 +17,7 @@ $$
 
 ### 建模
 
-<img src="pasteImage/diffusion.webp" style="display: block; margin-left: auto; margin-right: auto; width: 75%;"/>
+<img src="../pasteImage/diffusion.webp" style="display: block; margin-left: auto; margin-right: auto; width: 75%;"/>
 
 前向传播和后向传播
 $$
@@ -65,13 +66,18 @@ $$
 
 ### 求解
 
-我们本质上是想要求解$p(x_0)$的分布，实践上我们是要重建$p_{\theta}(x_0|x_t)$，但是我们还是可以从$p(x_0)$的**最大似然估计**入手。
+我们本质上是想要求解$p(x_0)$的分布，实践上我们是要重建$p_{\theta}(x_0|x_t)$，但是我们还是可以从$p_\theta(x_0)$的**最大似然估计**入手。
 
 
 $$
 \begin{equation}
     \begin{split}
-        \log{p(x_0)} \geq & \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log{\frac{p(x_{0:T})}{q(x_{1:T}|x_0)}}\right]\\
+        \log{p_\theta(x_0)} =& \log \int p_\theta(x_0, x_1, ..., x_T)dx_1...dx_T\\
+        = & \log \int p_\theta(x_{0:T})dx_{1:T}\\
+        = & \log \int \frac{p_\theta(x_{0:T})q(x_{1:T}|x_0)}{q(x_{1:T}|x_0)}dx_{1:T}\\
+        =&\log \mathbb{E}_{q(x_{1:T}|x_0)}\left[ \frac{p_\theta(x_{0:T})}{q(x_{1:T}|x_0)}\right]\\
+        \geq & \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log{\frac{p_\theta(x_{0:T})}{q(x_{1:T}|x_0)}}\right]\\
+        =& \mathbb{E}_{q(x_{1:T}|x_0)}\left[ \log \frac{p(x_T)\prod p(x_{t-1}|x_t)}{\prod q(x_t|x_{t-1})}\right]\text{(assuming } x_t\text{ is Markov chain)}\\
         = & \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log{p(x_T)} + \sum_{t\geq 1}\log{\frac{p_{\theta}(x_{t-1}|x_t)}{q(x_t|x_{t-1})}}\right]=:L\\
         = & \mathbb{E}_{q(x_{1:T}|x_0)}\left[\underbrace{D_{KL}(q(x_T|x_0)\left|\right| p(x_T))}_{L_T} + \sum_{t\geq 1}\underbrace{D_{KL}(q(x_{t-1}|x_t,x_0) \left|\right| p_{\theta}(x_{t-1}|x_t))}_{L_{t-1}} - \underbrace{\log{p(x_0|x_1)}}_{L_0}\right]
     \end{split}
@@ -92,17 +98,29 @@ $$
 
 ### 求解$L_{t-1}$
 
-对于$L_{t-1}$，需要建模$q(x_{t-1}|x_t, x_0)$和$p_{\theta}(x_{t-1}|x_t)$。其中
+对于$L_{t-1}$，需要建模$q(x_{t-1}|x_t, x_0)$和$p_{\theta}(x_{t-1}|x_t)$。我们先考虑$q(x_{t-1}|x_t, x_0)$的分布
+$$
+\begin{equation}
+    \begin{split}
+        q(x_{t-1}|x_t, x_0)&=\frac{q(x_t|x_{t-1},x_0)q(x_{t-1}|x_0)}{q(x_t|x_0)}\\
+        &=\frac{q(x_t|x_{t-1})q(x_{t-1}|x_0)}{q(x_t|x_0)}\\
+        &=\frac{\mathcal{N}(x_t; \sqrt{\alpha_t}x_{t-1},(1-\alpha_t)\mathbf{I}) \mathcal{N}(x_{t-1}; \sqrt{\bar{\alpha}_{t-1}}x_0, (1-\bar{\alpha}_{t-1})\mathbf{I})}{\mathcal{N}(x_t;\sqrt{\bar{\alpha}_t}x_0, (1-\bar{\alpha}_t)\mathbf{I})}\\
+        &=(skipped)\\
+        &\propto \mathcal{N}\left(x_{t-1}; \underbrace{\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})x_t+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)x_0}{1-\bar{\alpha}_t}}_{\tilde{\mu}_q(x_t, x_0)}, \underbrace{\frac{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}\mathbf{I}}_{\Sigma_q(t)} \right)
+    \end{split}
+\end{equation}
+$$
+可见$q(x_{t-1}|x_t, x_0)$遵循高斯分布，我们将其整理一下：
 $$
 \begin{equation}
     \begin{gathered}
-        q(x_{t-1}|x_t, x_0) = \mathcal{N}(\tilde{\mu}_t(x_t, x_0), \tilde{\beta}_t \mathbf{I})\\
-        \text{where} \quad \tilde{\mu}_t(x_t, x_0):=\frac{\sqrt{\bar{\alpha}_{t-1}}\beta_t}{1-\bar{\alpha}_t}x_0+\frac{\sqrt{a_t}(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}x_t \quad \text{and} \quad \tilde{\beta}_t:=\frac{1-\bar{\alpha}_{t-1}}{1-\bar{\alpha}_t}\beta_t
+        q(x_{t-1}|x_t, x_0) = \mathcal{N}(\tilde{\mu}_q(x_t, x_0), \Sigma_q(t))\\
+        \text{where} \quad \tilde{\mu}_t(x_t, x_0):=\frac{\sqrt{\bar{\alpha}_{t-1}}\beta_t}{1-\bar{\alpha}_t}x_0+\frac{\sqrt{a_t}(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}x_t
     \end{gathered}
 \end{equation}
 $$
 
-因为$q(x_{t-1}|x_t, x_0)$遵循高斯分布（式8），不妨用高斯分布建模$p_{\theta}(x_{t-1}|x_t):=\mathcal{N}(\mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$。原论文中对于$\Sigma_\theta(x_t, t)$的很简单，从$\tilde{\beta}_t$和$\beta_t$中选择了一个。不妨选择$\Sigma_\theta(x_t, t):=\Sigma(x_t, t)=\tilde{\beta}_t$。那么$L_{t-1}$就变成了如下
+因为$q(x_{t-1}|x_t, x_0)$遵循高斯分布（式9），不妨用高斯分布建模$p_{\theta}(x_{t-1}|x_t):=\mathcal{N}(\mu_\theta(x_t, t), \Sigma_\theta(x_t, t))$。原论文中对于$\Sigma_\theta(x_t, t)$的很简单，令$\Sigma_\theta(x_t, t)=\Sigma_q(t)$，那么$L_{t-1}$就如下式：
 
 $$
 \begin{equation}
@@ -127,13 +145,13 @@ $$
 
 $\mu_\theta(x_t, t)$是关于$x_t$和$t$的函数，所以我们需要学习一个映射$f_\theta:(x_t,t)\rightarrow x_0 \ \text{or}\ \epsilon_t$。
 
-学习$x_0$，即$\hat{x_0}=f_\theta(x_t, t)$，式9会简化成如下形式：
+学习$x_0$，即$\hat{x_0}=f_\theta(x_t, t)$，式10会简化成如下形式：
 $$
 \begin{equation}
     \frac{\bar{\alpha}_{t-1}\beta_t^2}{2\tilde{\beta_t^2}(1-\bar{\alpha}_t)^2}\left[ \left|\right| f_\theta(x_t, t)-x_0\left|\right|_2^2\right]
 \end{equation}
 $$
-学习$\epsilon_t$，即$\hat{\epsilon_t}=f_\theta(x_t, t)$，式9会简化成如下形式：
+学习$\epsilon_t$，即$\hat{\epsilon_t}=f_\theta(x_t, t)$，式10会简化成如下形式：
 $$
 \begin{equation}
     \frac{\beta_t^2}{2\tilde{\beta_t^2}(1-\bar{\alpha}_t)\alpha_t}\left[ \left|\right| f_\theta(x_t, t)-\epsilon_t\left|\right|_2^2\right]
