@@ -14,6 +14,8 @@ $\mathbb{E}_{X|Y}\left[g(X) | Y=y\right]$：随机变量$X$在遵循分布$p(x|y
 
 $\Theta, \theta,\hat{\theta}$：代表参数的随机变量，参数的真实值和估计值
 
+$\phi(x)$和$\Phi(x)$：分别表示高斯分布的PDF和CDF
+
 ### Vector Case
 
 比如采样$\mathbf{X}=(x_1, x_2, ..., x_n)^T$

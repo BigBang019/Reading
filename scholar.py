@@ -2,7 +2,6 @@ import urllib.parse
 import urllib.request
 import re
 import json
-from tqdm import tqdm
 from collections import defaultdict
 
 def ParseCookie(s):
@@ -93,6 +92,42 @@ class DBLP:
         pub = self.GetData(url)
         pub = json.loads(pub)
         return pub['result']['hits']['hit'][0]['info']['venue']
+    
+    def GetAuthorFromVenue(self, venue, filter_affilation=None):
+        url = "https://dblp.org/search/publ/api?q=" + urllib.parse.quote(f'venue:{venue}') + "&format=json&h=1000"
+        pub = self.GetData(url)
+        pub = json.loads(pub)
+        hits = pub['result']['hits']['hit']
+        found_author = []
+        for hit in hits:
+            if 'authors' in hit['info'].keys():
+                authors = hit['info']['authors']['author']
+                if not isinstance(authors, list):
+                    continue
+                for author in authors:
+                    name = author['text']
+                    affilation = self.GetAffilationFromAuthor(name)
+                    if len(affilation)==0:
+                        continue
+                    affilation = affilation[0]
+                    if filter_affilation is not None and filter_affilation in affilation:
+                        found_author.append((name, affilation))
+        return found_author
+
+    def GetAffilationFromAuthor(self, author):
+        url = "https://dblp.org/search/author/api?q=" + urllib.parse.quote(author) + "&format=json&h=1000"
+        author = self.GetData(url)
+        author = json.loads(author)
+        hits = author['result']['hits']['hit']
+        found_affilations = []
+        for hit in hits:
+            if 'notes' in hit['info'].keys():
+                note = hit['info']['notes']['note']
+                if isinstance(note, list):
+                    note = note[0]
+                if note['@type'] == 'affiliation':
+                    found_affilations.append(note['text'])
+        return found_affilations
 
 if __name__ == "__main__":
     dblp = DBLP()
@@ -100,14 +135,8 @@ if __name__ == "__main__":
     pubs_cnt = defaultdict(lambda:0)
     
     '''dblp'''
-    with open('titles.txt', 'r') as f:
-        titles = f.readlines()
-        for title in tqdm(titles):
-            try:
-                pub = dblp.GetPubFromTitle(title)
-                pubs_cnt[pub] += 1
-            except Exception as e:
-                # print(title, e)
-                pubs_cnt['unknown'] += 1
+    author_affilations = dblp.GetAuthorFromVenue("AAAI", "Hong Kong")
+    print('hi')
+    exit()
     with open('pub_cnt.json', 'w') as f:
         json.dump(pubs_cnt, f)
