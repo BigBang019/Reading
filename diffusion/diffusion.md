@@ -168,7 +168,7 @@ $$
 又因为$x_t\sim \mathcal{N}(\sqrt{\bar{\alpha}_t}x_0, \sqrt{1-\bar{\alpha}}_t \mathbf{I})$等价于：
 $$
 \begin{equation}
-x_t=\sqrt{\bar{\alpha}_t x_0}+\sqrt{1-\bar{\alpha}_t}\epsilon_t
+x_t=\sqrt{\bar{\alpha}_t} x_0+\sqrt{1-\bar{\alpha}_t}\epsilon_t
 \end{equation}
 $$
 结合上两式子可得：

@@ -52,7 +52,24 @@ $$
 
 ### 求解方向$\nabla_{\mathbf{x}} \log p(\mathbf{x})$
 
-上式的新问题是$\nabla_{\mathbf{x}}\log{p(\mathbf{x})}$未知。这个领域的研究叫Score-matching。
+根据tweedie's formular，我们有
+$$
+\begin{equation}
+\sqrt{\bar{\alpha}_t}x_0 = x_t+(1-\bar{\alpha}_t)\nabla_{x_t}\log p(x_t)
+\end{equation}
+$$
+又因为$x_t\sim \mathcal{N}(\sqrt{\bar{\alpha}_t}x_0, \sqrt{1-\bar{\alpha}}_t \mathbf{I})$等价于：
+$$
+\begin{equation}
+x_t=\sqrt{\bar{\alpha}_t} x_0+\sqrt{1-\bar{\alpha}_t}\epsilon_t
+\end{equation}
+$$
+结合上两式子可得：
+$$
+\begin{equation}
+\nabla_{x_t}\log p(x_t)=-\frac{\epsilon_t}{\sqrt{1-\bar{\alpha}_t}}
+\end{equation}
+$$
 
 <img src="https://yang-song.net/assets/img/score/langevin.gif" width="250">
 
