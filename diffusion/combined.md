@@ -36,11 +36,11 @@ $$
 \mathbf{x}_{t-1}\sim q(\mathbf{x_{t-1}|\mathbf{x_t}, \mathbf{x_0}})=\mathcal{N}(\tilde{\mu}_q, \Sigma_q)\\
 \tilde{\mu}_q(\mathbf{x}_t, \mathbf{x}_0)=\frac{1}{\sqrt{\alpha_t}}x_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\epsilon_t\\
 \Sigma_q=\frac{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}\mathbf{I}\\
-
 \text{采样:}\quad\mathbf{x}_{t-1}=\tilde{\mu}_q+\Sigma_q \mathbf{z}=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}}\mathbf{\epsilon}_t\right)+\Sigma_q \mathbf{z}, \quad \mathbf{z}\sim \mathcal{N}(0, \mathbf{I})\\
 \end{gathered}
 \end{equation}
 $$
+
 其中$\epsilon_t$在反向过程中是未知量，$\Sigma_q$是常数，所以唯一需要学习的量只有$\epsilon_t$。那么我们就可以根据关于$\mathbf{x}_0$的数据集构建如下输入输出：
 $$
 \begin{equation}
