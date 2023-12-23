@@ -70,6 +70,7 @@ $$
 \nabla_{x_t}\log p(x_t)=-\frac{\epsilon_t}{\sqrt{1-\bar{\alpha}_t}}
 \end{equation}
 $$
+即$\nabla_{x_t}\log p(x_t)$是前向过程加的噪声乘以一个常数。
 
 <img src="https://yang-song.net/assets/img/score/langevin.gif" width="250">
 

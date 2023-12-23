@@ -178,31 +178,3 @@ $$
 \end{equation}
 $$
 所以学习$\epsilon_t$等效于学习score function。我们在下一节会展示学习$\nabla_{x_t} \log p(x_t)$的几何意义。
-
-# Code
-
-*https://github.com/lucidrains/denoising-diffusion-pytorch*
-
-$\mathbf{x}_t=\sqrt{\bar{\alpha}_t}\mathbf{x}_0+\sqrt{1-\bar{\alpha}_t}\epsilon_t, \quad \epsilon_t\sim \mathcal{N}(0, \mathbf{I})$
-
-### 初始化参数
-
-```betas```  $\beta_t$
-
-```alphas```   $\alpha_t$
-
-```alphas_cumprod```   $\bar{\alpha}_t$
-
-```alphas_cumprod_prev```   $\bar{\alpha}_{t-1}$
-
-
-```sqrt_alphas_cumprod```   $\sqrt{\bar{\alpha}_t}$
-
-```sqrt_one_minus_alphas_cumprod```   $\sqrt{1-\bar{\alpha}_t}$
-
-```log_one_minus_alphas_cumprod```   $\log(1-\bar{\alpha}_t)$
-
-```sqrt_recip_alphas_cumprod```   $\frac{1}{\sqrt{\bar{\alpha}_t}}$
-
-```sqrt_recipm1_alphas_cumprod```   $\sqrt{\frac{1}{\bar{\alpha}_t}-1}$
-
