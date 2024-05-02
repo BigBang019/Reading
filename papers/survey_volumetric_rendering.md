@@ -8,13 +8,13 @@
 - encoder: 3 feature extractor generate global feature
 - decoder: upsampling
 
-![](pasteImage/2023-03-16-21-52-56.png)
+![](../pasteImage/2023-03-16-21-52-56.png)
 
-![](pasteImage/2023-03-16-21-51-55.png)
+![](../pasteImage/2023-03-16-21-51-55.png)
 
 QA:
 1. clustered points issues
-   ![](pasteImage/2023-03-16-21-51-28.png)
+   ![](../pasteImage/2023-03-16-21-51-28.png)
 
 #### Attribute Artifacts Removal for Geometry-Based Point Cloud Compression
 
@@ -22,7 +22,7 @@ QA:
 - Multi-scale GAT
 - compared RAHT
 
-![](pasteImage/2023-03-17-14-45-16.png)
+![](../pasteImage/2023-03-17-14-45-16.png)
 
 
 #### A Regularized Projection-Based Geometry Compression Scheme for LiDAR Point Cloud
@@ -59,7 +59,7 @@ QA:
 - 根据（树上的）parent和（空间上的）邻居信息预测（树上的）child存在与否
 - 比较MPEG anchor
 
-![](pasteImage/2023-03-17-17-26-26.png)
+![](../pasteImage/2023-03-17-17-26-26.png)
 
 #### Groot: A real-time streaming system of high-fidelity volumetric videos
 - 类似vivo（用户自适应优化）
@@ -98,7 +98,7 @@ QA:
 - spatial locality: points with similar Morton code within one frame have little variance in both geometry and attribute values
 - temporal locality: the points with adjacent Morton codes (for instance, a cluster of geometrically close points) are likely to move in a certain direction, as a whole block, across frames
 
-![](pasteImage/2023-03-17-21-30-36.png)
+![](../pasteImage/2023-03-17-21-30-36.png)
 
 
 
@@ -133,7 +133,7 @@ QA:
 - 优化sample策略
 - 证明最小化reconstruction error等同于最大化（）的最小特征值
 
-![](pasteImage/2023-03-17-15-53-58.png)
+![](../pasteImage/2023-03-17-15-53-58.png)
 
 #### INENet: Inliers Estimation Network With Similarity Learning for Partial Overlapping Registration
 - 处理的问题是多sensor扫描的point cloud是不全的、多角度的，如何从多份replica中重建一个完整的出来

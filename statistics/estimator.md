@@ -29,7 +29,7 @@ l(\theta)=\log f_{\mathbf{X}|\Theta}(\mathbf{x}|\theta) = \sum_{i=1}^n \log f_{X
 \end{equation}
 $$
 
-> 因为上面的例子里单个采样遵循伯努利分布，则$f_{X_i|\Theta}(x_i|\theta)=\theta^{x_i}(1-\theta)^{1-x_i}$
+> 例子1: 因为上面的例子里单个采样遵循伯努利分布，则$f_{X_i|\Theta}(x_i|\theta)=\theta^{x_i}(1-\theta)^{1-x_i}$
 > $$
 > \begin{split}
 > l(\theta)=&\sum_{i=1}^n\log f_{X_i|\Theta}(x_i|\theta)\\
@@ -38,6 +38,16 @@ $$
 > \end{split}
 > $$
 > 当$\theta=\frac{1}{n}\sum_{i=1}^nx_i$，上式子取最大值。
+
+> 例子2: 假设现在是对一个高斯分布$\mathcal{N}(\mu, \sigma^2)$作参数估计，我们的采样有$X=\{x_1, x_2, ..., x_{n}\}$，那么$f_{X_i|\Theta}(x_i|\theta)=\frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(x_i-\mu)^2}{2\sigma^2})$
+> $$
+> \begin{split}
+> l(\mu, \sigma)=&\sum_{i=1}^n\log f_{X_i|\Theta}(x_i|\theta)\\
+> =&\sum_{i=1}^n[-\frac{1}{2}\log 2\pi-\log \sigma-\frac{(x_i-\theta)^2}{2\sigma^2}]\\
+> &=-\frac{n}{2}\log 2\pi-\frac{n}{2}\log \sigma^2-\frac{(x_i-\theta)^2}{2\sigma^2}\\
+> \end{split}
+> $$
+> 上式子分别对$\sigma$和$\mu$求导，可得当$\mu=\frac{1}{n}\sum_{i=1}^{n}x_i$并且$\sigma^2=\frac{\sum_{i=1}^n(x_i-\bar{X})}{n}$时，上式子求得最大值。
 
 ### 最大后验估计
 $$
@@ -133,3 +143,6 @@ $$
 > \end{equation*}
 > $$
 > 所以当$u(\mathbf{x})=g(\mathbf{x})$时，上式达到最小，即$g(\mathbf{x})=\mathbb{E}_{\Theta|\mathbf{X}}\left[\Theta|\mathbf{X}=\mathbf{x}\right]$。
+
+# 无偏估计
+

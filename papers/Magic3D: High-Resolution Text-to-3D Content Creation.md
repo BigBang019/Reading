@@ -31,7 +31,7 @@ $$
 | & | & | & |\\
 \mathbf{v}_{r} & \mathbf{v}_{u} & \mathbf{v}_{f} & \mathbf{c}\\
 | & | & | & |\\
-0 & 0 & 0 & 0\\
+0 & 0 & 0 & 1\\
 \end{pmatrix}
 \end{equation}
 $$
