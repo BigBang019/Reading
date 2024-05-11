@@ -1,4 +1,6 @@
-# Diffusion Models Beat GANs on Image Synthesis
+Diffusion Models Beat GANs on Image Synthesis. NeurIPS 2021.
+
+# 核心思想
 
 *本文采用machine leanring notation*
 

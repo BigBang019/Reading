@@ -215,7 +215,7 @@ $$
 
 ### 前向过程
 
-```diffusers.schedulers.scheduling_ddpm.DDPMScheduler.add_noise```
+```diffusers.DDPMScheduler.add_noise```
 ```
 sqrt_alpha_prod = alphas_cumprod[timesteps] ** 0.5
 sqrt_one_minus_alpha_prod = (1 - alphas_cumprod[timesteps]) ** 0.5

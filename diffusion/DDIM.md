@@ -47,30 +47,36 @@ $$
 
 采样过程：
 $$
+\begin{equation}
 \mathbf{x}_{t-1}=\sqrt{\bar{\alpha}_{t-1}}\left(\frac{\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t}\epsilon_\theta(\mathbf{x}_t)}{\sqrt{\bar{\alpha}_t}}\right)+\sqrt{1-\bar{\alpha}_{t-1}-\sigma_t^2}\cdot \epsilon_\theta(\mathbf{x}_t)+\sigma_t\epsilon_t
+\end{equation}
 $$
 
 优化目标：（暂略）
 
 
 # QA
-<!-- ### 与DDPM的关系
-DDPM里的$\epsilon_\theta(\mathbf{x},t)$预测的是下式的$\epsilon_t$
+### 与DDPM的关系
+当$\sigma_t=0$的时候，整个reverse过程为deterministic的；当$\sigma_t=\sqrt{\frac{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}{\bar{\alpha}_{t-1}(1-\bar{\alpha}_t)}}$的时候，整个forward和reverse都变为Markovian，此时DDIM变为DDPM。
+
+### DDIM Inversion是什么
+回忆DDIM reverse：$\mathbf{x}_{t-1}=\sqrt{\bar{\alpha}_{t-1}}\left(\frac{\mathbf{x}_t-\sqrt{1-\bar{\alpha}_t}\epsilon_\theta(\mathbf{x}_t)}{\sqrt{\bar{\alpha}_t}}\right)+\sqrt{1-\bar{\alpha}_{t-1}-\sigma_t^2}\cdot \epsilon_\theta(\mathbf{x}_t)+\sigma_t\epsilon_t$
+
+考虑以下场景：用户A采样$\mathbf{x}_T\sim \mathcal{N}(\mathbf{0},\mathbf{I})$，并且用DDIM reverse得到$\mathbf{x}_0$。那么给定$\mathbf{x}_0$，能不能推回当初采样的$\mathbf{x}_T$？
+
+我们重写一下DDIM reverse的公式：
 $$
-\mathbf{x}_t = \sqrt{\alpha_t}\mathbf{x}_{t-1} + \sqrt{1-\alpha_t}\mathbf{\epsilon}_t
+\begin{equation}
+\mathbf{x}_t=\sqrt{\alpha_t}\left[\mathbf{x}_{t-1}-\sqrt{1-\bar{\alpha}_{t-1}}\epsilon_\theta(\mathbf{x}_t,t)\right]+\sqrt{1-\bar{\alpha}_t}\epsilon_\theta(\mathbf{x}_t, t)
+\end{equation}
 $$
-DDIM里的$\epsilon_\theta(\mathbf{x},t)$预测的是下式的$\epsilon$
-$$
-\mathbf{x}_t=\sqrt{\bar{\alpha}_t}\mathbf{x}_0+\sqrt{1-\bar{\alpha}_t}\epsilon
-$$
-当$\sigma_t=0$的时候，整个reverse过程为deterministic的；当$\sigma_t=\sqrt{\frac{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}{\bar{\alpha}_{t-1}(1-\bar{\alpha}_t)}}$的时候，整个forward和reverse都变为Markovian，此时DDIM变为DDPM。 -->
+上面就是DDIM inverse的递推式，但是公式右边还是有关于$\mathbf{x}_{t}$的函数$\epsilon_\theta(\mathbf{x}_t,t)$，在实际应用中，DDIM inverse用$\epsilon_\theta(\mathbf{x}_{t-1},t)$替换了$\epsilon_\theta(\mathbf{x}_t,t)$。我们会在后续code的分析里验证这一点。
 
 # Code怎么写的
 
+### DDIM Forward
 
-### 前向过程
-
-```diffusers.schedulers.scheduling_ddpm.DDPMScheduler.add_noise```
+```diffusers.DDPMScheduler.add_noise```
 ```
 sqrt_alpha_prod = alphas_cumprod[timesteps] ** 0.5
 sqrt_one_minus_alpha_prod = (1 - alphas_cumprod[timesteps]) ** 0.5
@@ -80,7 +86,7 @@ $$
 \sqrt{\bar{\alpha}_t}x_0+\sqrt{1-\bar{\alpha}_t}\epsilon
 $$
 
-### 反向过程
+### DDIM Reverse
 
 ```diffuser.DDIMScheduler.step```
 ```
@@ -108,3 +114,34 @@ prev_sample = alpha_prod_t_prev ** (0.5) * pred_original_sample + pred_sample_di
 $$
 \sqrt{\bar{\alpha}_{\tau_{i-1}}}\left(\frac{x_{\tau_i}-\sqrt{1-\bar{\alpha}_{\tau_i}}\epsilon_\theta(x_{\tau_{i}},\tau_{i})}{\sqrt{\bar{\alpha}_{\tau_i}}}\right)+\sqrt{1-\bar{\alpha}_{\tau_{i-1}}-\sigma_{\tau_i}^2}\epsilon_\theta(x_{\tau_i}, \tau_i)
 $$
+
+### DDIM Inverse
+```diffuser.DDIMInverseScheduler.step```
+
+
+```
+prev_timestep = timestep
+timestep = min(
+    timestep - self.config.num_train_timesteps // self.num_inference_steps, self.config.num_train_timesteps - 1
+)
+```
+注意这里的$(\text{prev\_timestep}, \text{timestep})=(\tau_{i},\tau_{i-1})$和DDIM reverse的$(\text{prev\_timestep}, \text{timestep})=(\tau_{i-1},\tau_{i})$不同。
+```
+pred_original_sample = (sample - beta_prod_t ** (0.5) * model_output) / alpha_prod_t ** (0.5)
+```
+$$
+\frac{\mathbf{x}_{\tau_{i-1}}-\sqrt{1-\bar{\alpha}_{\tau_{i-1}}}\epsilon_\theta(\mathbf{x}_{\tau_{i-1}},\tau_i)}{\sqrt{\bar{\alpha}_{\tau_{t-1}}}}
+$$
+```
+pred_sample_direction = (1 - alpha_prod_t_prev) ** (0.5) * pred_epsilon
+```
+$$
+\sqrt{1-\bar{\alpha}_{\tau_i}}\epsilon_\theta(\mathbf{x}_{\tau_{i-1}},\tau_{i})
+$$
+```
+prev_sample = alpha_prod_t_prev ** (0.5) * pred_original_sample + pred_sample_direction
+```
+$$
+\sqrt{\bar{\alpha}_{\tau_i}}\left(\frac{\mathbf{x}_{\tau_{i-1}}-\sqrt{1-\bar{\alpha}_{\tau_{i-1}}}\epsilon_\theta(\mathbf{x}_{\tau_{i-1}},\tau_i)}{\sqrt{\bar{\alpha}_{\tau_{i-1}}}}\right)+\sqrt{1-\bar{\alpha}_{\tau_{i-1}}}\epsilon_\theta(\mathbf{x}_{\tau_{i-1}},\tau_i)
+$$
+当$(\tau_{i},\tau_{i-1})=(t,t-1)$时，上式等效于Eq. (7)；当不满足时，后果还未探索。
