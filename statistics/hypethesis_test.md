@@ -6,7 +6,7 @@
 
 上述描述有如下限制：
 - $\mathbf{X}_i,\mathbf{Y}_j$必须遵循$k$维正态分布
-- $\mathbf{X}$的采样互相独立，\mathbf{Y}$的采样互相独立
+- $\mathbf{X}$的采样互相独立，$\mathbf{Y}$的采样互相独立
 - 方差矩阵相同
 
 设立假设：
@@ -22,7 +22,7 @@ $$
 T^2=(\mu-X-\mu_Y)^T\left\{\mathbf{S}(\frac{1}{n}+\frac{1}{m})\right\}^{-1}(\mu_X-\mu_Y)\\
 F=\frac{n+m-p-1}{p(n+m-2)}T^2\sim F_{p,n+m-p-1}
 $$
-注意上式的$p$并不是*p-value*，而是自由度degree-of-freedom（$df_1$），Hoteling T square Test里的$df_2=n+m-p-1$为，所以在置信度$\alpha$下的critical *F-value*可以被标记为$F_{\alpha,df_1,df_2}$。[查表](http://www.socr.ucla.edu/Applets.dir/F_Table.html)。
+注意上式的$p$并不是*p-value*，而是自由度degree-of-freedom（$df_1$），Hoteling T square Test里的$df_2=n+m-p-1$，所以在置信度$\alpha$下的critical *F-value*可以被标记为$F_{\alpha,df_1,df_2}$。[查表](http://www.socr.ucla.edu/Applets.dir/F_Table.html)。
 
 
 *p-value*取值范围在$[0,1]$，当*p-value*越大，意味着采样数据与$H_0$越一致，或者说我们无法拒绝$H_0$。

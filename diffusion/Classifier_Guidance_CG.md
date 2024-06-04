@@ -1,48 +1,58 @@
 Diffusion Models Beat GANs on Image Synthesis. NeurIPS 2021.
 
-# 核心思想
+# Classifier Guidance Takeaway
 
 *本文采用machine leanring notation*
 
 
-解决两个问题，在拟合求解$q(x|y)$的过程中：
-- 前向过程$q(x_{t}|x_{t-1},y)$是什么
-- 反向过程$q(x_{t-1}|x_t, y)$是什么
-
-原文定义里
+定义前向过程：
 $$
 \begin{align}
 \hat{q}(x_{t}|x_{t-1}, y)&:=q(x_{t}|x_{t-1})=\mathcal{N}(\sqrt{\alpha_t}x_{t-1}, (1-\alpha_t)\mathbf{I})
 \end{align}
 $$
-定义解决了前向过程，那么反向过程是什么？
 
-根据tweedie's formula，我们有
+根据tweedie's formula和前向过程，我们有
 $$
 \begin{align}
-\sqrt{\alpha_t}x_{t-1}=x_t+\sqrt{1-\alpha_t} \nabla_{x_t}\log q(x_t | y)
+\sqrt{\alpha_t}x_{t-1}&=x_t+(1-\alpha_t) \nabla_{x_t}\log q(x_t | y)\\
+x_t&=\sqrt{\alpha_t}x_{t-1}+\sqrt{1-\alpha_t}\epsilon_t
 \end{align}
 $$
-其中求解$\nabla_{x_t}\log q(x_t | y)$过程如下：
+结合上式我们可以得到：
 $$
 \begin{align}
-\nabla_{x_t}\log q(x_t | y)&=\nabla_{x_t}\log \frac{q(y|x_t)q(x_t)}{q(y)}\\
-&=\nabla_{x_t}\log q(y|x_t)q(x_t)\\
-&\approx\nabla_{x_t}\log p_\phi(y|x_t)p_\theta(x_t)\\
-&=-\frac{1}{\sqrt{1-\bar{\alpha}_t}}\epsilon_\theta(x_t)+\nabla_{x_t}\log p_\phi(y|x_t)
+\epsilon_t&=-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log q(x_t|y)\\
+&=-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log \frac{q(y|x_t)q(x_t)}{q(y)}\\
+&=-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log q(y|x_t)q(x_t)\\
+&=-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log q(y|x_t)-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log q(x_t)\\
+&\approx-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log q(y|x_t)+\epsilon_\theta(x_t,t)
 \end{align}
 $$
-其中式(5)接上了原文中supplementary式(58)的推导，式(6)的推导在supplementary的Sec. D已经讲的很清楚。
+所以求解拟合此时的真实噪声$\epsilon_t$只需要求解$\nabla_{x_t}\log q(y|x_t)$。那么$q(y|x_t)$是什么？给定任意（加噪）图片$x_t$，给出他的class label $y$，也就是说我们需要额外训练一个neural classifier $p_\phi(y|x_t)$。
 
-本文中定义guided diffusion中的噪声$\hat{\epsilon}(x_t)$为：
+所以我们可以定义拟合的噪声
 $$
 \begin{align}
-\hat{\epsilon}(x_t)&:=-\sqrt{1-\bar{\alpha_t}}\nabla_{x_t}\log q(x_t|y)\\
-&=\epsilon_\theta(x_t)-\sqrt{1-\bar{\alpha_t}}\nabla_{x_t}\log p_\theta(y|x_t)
+\hat{\epsilon}(x_t, t, y):=\epsilon_\theta(x_t,t)-\sqrt{1-\bar{\alpha}_t}\nabla_{x_t}\log p_{\phi}(y|x_t)
 \end{align}
 $$
+可以直接将上述拟合噪声带入[DDPM](DDPM.md)/[DDIM](DDIM.md)的反向过程。
 
-至此我们的核心推导结束，因为$\hat{\epsilon}(x_t)$和$\nabla_{x_t}\log q(x_t|y)$都已推导，我们可以用其替换DDPM或者DDIM里面的$\epsilon(x_t)$和$\nabla_{x_t}\log q(x_t)$。
+# QA
+
+### 如何理解$\nabla_{x_t}\log q(x_t|y)$
+
+$$
+\begin{align}
+\nabla_{x_t}\log q(x_t|y)&=\nabla_{x_t}\log \frac{q(y|x_t)q(x_t)}{q(y)}\\
+&=\underbrace{\nabla_{x_t}\log q(y|x_t)}_{\text{classifier gradient}}+\underbrace{\nabla_{x_t}\log q(x_t)}_{\text{unconditional score}}\\
+\end{align}
+$$
+原文里有提到过guidance scale版的预测噪声本质是在增大$\text{classifier gradient}$
+$$
+\nabla_{x_t}\log q(x_t|y)=s\nabla_{x_t}\log q(y|x_t)+\nabla_{x_t}\log q(x_t)
+$$
 
 
 <!-- ### Reference
