@@ -32,3 +32,11 @@ $$
 \end{equation}
 $$
 是从$t$时刻预测的pseudo-ground-truth，有意思的是这个预测的方式和[DDIM](../diffusion/DDIM.md)里预测$\mathbf{x}_0$的方式完全一致。
+
+
+此时的梯度为：
+$$
+\begin{equation}
+\nabla_\theta \mathcal{L}_{SDS}(\theta)=\mathbb{E}_{t,\epsilon,\mathbf{c}}\left[\frac{\sqrt{\bar{\alpha}_t}w(t)}{\sqrt{1-\bar{\alpha}_t}}\left(g_\theta(\mathbf{c})-\hat{\mathbf{x}}_0^t\right)\frac{\partial g_\theta(\mathbf{c})}{\partial \theta}\right]
+\end{equation}
+$$
