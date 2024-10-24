@@ -1,6 +1,24 @@
-# Fourier Transform (Extension)
+# Fourier Transform
 
-#### 问题：从sample重建连续函数
+我们从一个猜想开始，任意的连续信号可不可以用下面的表达式表示：
+$$
+\begin{equation}
+f(t)=\sum_{k=-n}^n C_k e^{2\pi ki}
+\end{equation}
+$$
+那么我们可以做以下推导：
+$$
+\begin{equation}
+\begin{aligned}
+C_me^{2\pi mit}&=f(t)-\sum_{k\neq m}C_ke^{2\pi kit}\\
+C_m&=e^{-2\pi mit}f(t)-\sum_{k\neq m}C_ke^{-2\pi mit}e^{2\pi kit}\\
+
+\end{aligned}
+\end{equation}
+$$
+
+
+<!-- #### 问题：从sample重建连续函数
 定义
 $$
 \begin{equation}
@@ -36,11 +54,4 @@ $$
     \end{split}
 \end{equation}
 $$
-可见需要无穷的采样
-
-#### 问题：从有限sample重建连续函数
-根据[1]的信息，Prolate Spheroidal Wave Functions
-
-
-## Reference
-[1] Avron, Haim, et al. "A universal sampling method for reconstructing signals with simple fourier transforms." Proceedings of the 51st Annual ACM SIGACT Symposium on Theory of Computing. 2019.
+可见需要无穷的采样 -->
